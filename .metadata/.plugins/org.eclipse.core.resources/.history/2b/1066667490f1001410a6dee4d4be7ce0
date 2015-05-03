@@ -1,0 +1,24 @@
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
+
+/**
+ * Really simple, just writes a line to a file
+ */
+public class InterFileWriter 
+{
+	public static String filePath = "";
+	
+	public static void write(String _line)
+	{
+		try {
+			Writer output = new BufferedWriter(new FileWriter(filePath, true));
+			output.append(_line);
+			output.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+	}
+}

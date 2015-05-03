@@ -1,0 +1,6 @@
+/**
+ * Generates the header record for object file
+ */
+public interface ObjectRecordInterface {
+    public String toObjectProgram();
+}

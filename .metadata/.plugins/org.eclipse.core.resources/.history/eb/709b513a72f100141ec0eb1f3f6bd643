@@ -1,0 +1,86 @@
+import java.util.HashMap;
+import java.util.Map;
+
+public class Utility {
+    private static final Map<String, Operation> _operationTable;
+    private static final Map<String, Integer> _registerTable;
+    
+    static {
+        _operationTable = new HashMap<>();
+        
+        _operationTable.put("ADD",   new Operation("ADD", "3/4", "18"));
+        _operationTable.put("ADDF",  new Operation("ADDF", "3/4", "58"));
+        _operationTable.put("ADDR",  new Operation("ADDR", "2", "90"));
+        _operationTable.put("AND",   new Operation("AND", "3/4", "40"));
+        _operationTable.put("CLEAR", new Operation("CLEAR", "2",   "B4"));
+        _operationTable.put("COMP",  new Operation("COMP",  "3/4", "28"));
+        _operationTable.put("COMPF", new Operation("COMPF", "3/4", "88"));
+        _operationTable.put("COMPR", new Operation("COMPR", "2",   "A0"));
+        _operationTable.put("DIV", 	 new Operation("DIV", "3/4", "24"));
+        _operationTable.put("DIVF",  new Operation("DIVF", "3/4", "64"));
+        _operationTable.put("DIVR",  new Operation("DIVR", "2", "9C"));
+        _operationTable.put("J",     new Operation("J",     "3/4", "3C"));
+        _operationTable.put("JEQ",   new Operation("JEQ",   "3/4", "30"));
+        _operationTable.put("JGT",   new Operation("JGT", "3/4", "34"));
+        _operationTable.put("JLT",   new Operation("JLT",   "3/4", "38"));
+        _operationTable.put("JSUB",  new Operation("JSUB",  "3/4", "48"));
+        _operationTable.put("LDA",   new Operation("LDA",   "3/4", "00"));
+        _operationTable.put("LDB",   new Operation("LDB",   "3/4", "68"));
+        _operationTable.put("LDCH",  new Operation("LDCH",  "3/4", "50"));
+        _operationTable.put("LDF",   new Operation("LDF", "3/4", "70"));
+        _operationTable.put("LDL",   new Operation("LDL", "3/4", "08"));
+        _operationTable.put("LDS",   new Operation("LDS", "3/4", "6C"));
+        _operationTable.put("LDT",   new Operation("LDT",   "3/4", "74"));
+        _operationTable.put("LDX",  new Operation("LDX", "3/4", "04"));
+        _operationTable.put("LPS",  new Operation("LPS", "3/4", "D0"));
+        _operationTable.put("MUL",  new Operation("MUL", "3/4", "20"));
+        _operationTable.put("MULF",  new Operation("MULF", "3/4", "60"));
+        _operationTable.put("MULR",  new Operation("MULR", "2", "98"));
+        _operationTable.put("OR",  new Operation("OR", "3/4", "44"));
+        _operationTable.put("RD",    new Operation("RD",    "3/4", "D8"));
+        _operationTable.put("RMO",  new Operation("RMO", "3/4", "AC"));
+        _operationTable.put("RSUB",  new Operation("RSUB",  "3/4", "4C"));
+        _operationTable.put("SHIFTL",  new Operation("SHIFTL", "2", "A4"));
+        _operationTable.put("SHIFTR",  new Operation("SHIFTR", "2", "A8"));
+        _operationTable.put("SSK",  new Operation("SSK", "3/4", "EC"));
+        _operationTable.put("STA",   new Operation("STA",   "3/4", "0C"));
+        _operationTable.put("STB",  new Operation("STB", "3/4", "78"));
+        _operationTable.put("STCH",  new Operation("STCH",  "3/4", "54"));
+        _operationTable.put("STF",  new Operation("STF", "3/4", "80"));
+        _operationTable.put("STI",  new Operation("STI", "3/4", "D4"));
+        _operationTable.put("STL",   new Operation("STL",   "3/4", "14"));
+        _operationTable.put("STS",  new Operation("STS", "3/4", "7C"));
+        _operationTable.put("STSW",  new Operation("STSW", "3/4", "E8"));
+        _operationTable.put("STT",  new Operation("STT", "3/4", "84"));
+        _operationTable.put("STX",   new Operation("STX",   "3/4", "10"));
+        _operationTable.put("SUB",  new Operation("SUB", "3/4", "1C"));
+        _operationTable.put("SUBF",  new Operation("SUBF", "3/4", "5C"));
+        _operationTable.put("SUBR",  new Operation("SUBR", "2", "94"));
+        _operationTable.put("SVC",  new Operation("SVC", "2", "B0"));
+        _operationTable.put("TD",    new Operation("TD",    "3/4", "E0"));
+        _operationTable.put("TIX",  new Operation("TIX", "3/4", "2C"));
+        _operationTable.put("TIXR",  new Operation("TIXR",  "2",   "B8"));
+        _operationTable.put("WD",    new Operation("WD",    "3/4", "DC"));
+        
+        _registerTable = new HashMap<>();
+        
+        _registerTable.put(null, 0);
+        _registerTable.put("A", 0);
+        _registerTable.put("X", 1);
+        _registerTable.put("L", 2);
+        _registerTable.put("B", 3);
+        _registerTable.put("S", 4);
+        _registerTable.put("T", 5);
+        _registerTable.put("F", 6);
+        _registerTable.put("SW", 9);
+        
+    }
+    
+    public static Map<String, Operation> getOperaionTable() {
+        return _operationTable;
+    }
+    
+    public static Map<String, Integer> getRegisterTable() {
+        return _registerTable;
+    }
+}

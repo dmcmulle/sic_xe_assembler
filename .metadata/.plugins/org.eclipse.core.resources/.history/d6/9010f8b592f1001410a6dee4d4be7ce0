@@ -1,0 +1,12 @@
+public class ObjectRecordEnd implements RecordInterface {
+    private final int _startAddress;
+    
+    public ObjectRecordEnd(int startAddr) {
+        _startAddress = startAddr;
+    }
+    
+    public String toObjectProgram() {
+        return String.format("E%1$06X", _startAddress);
+    }
+    
+}

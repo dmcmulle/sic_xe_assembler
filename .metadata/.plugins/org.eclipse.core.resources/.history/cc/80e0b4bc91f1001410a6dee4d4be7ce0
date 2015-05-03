@@ -1,0 +1,6 @@
+class DuplicateSymbolException extends Exception {
+    public DuplicateSymbolException(Statement statement) {
+        super("ERROR:  Duplicate symbol found: " + statement.label());
+        System.exit(-1)
+    }
+}

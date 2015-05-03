@@ -1,0 +1,16 @@
+1430639063102	Rename resource 'SRCFILE'
+1430643846275	Delete element
+1430646269874	Delete element
+1430652923773	Rename type 'Utility'
+1430653289998	Rename type 'Assembler'
+1430655962746	Delete element
+1430656912490	Delete element
+1430657163491	Delete element
+1430657227917	Rename type 'EndRecord'
+1430657234919	Rename type 'HeaderRecord'
+1430657241691	Rename type 'ModificationRecord'
+1430657251683	Rename type 'Operation'
+1430657274374	Rename type 'Record'
+1430657303899	Rename type 'TextRecord'
+1430657314934	Rename type 'RecordInterface'
+1430658116179	Rename type 'OP'

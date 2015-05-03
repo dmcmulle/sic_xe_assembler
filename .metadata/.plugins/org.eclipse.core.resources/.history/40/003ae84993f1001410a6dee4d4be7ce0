@@ -1,0 +1,14 @@
+public class ObjectModRecord implements ObjectRecordInterface {
+    private final int _location;
+    private final int _length;
+    
+    public ObjectModRecord(int modifiedLoc, int modifiedLen) {
+        _location = modifiedLoc;
+        _length = modifiedLen;
+    }
+    
+    public String toObjectProgram() {
+        return String.format("M%06X%02X", _location, _length);
+    }
+    
+}
