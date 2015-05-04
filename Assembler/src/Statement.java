@@ -73,12 +73,12 @@ public class Statement implements Serializable, Comparable<Object> {
     }
     
     //getter operand 1
-    public String operand1() {
+    public String firstOperand() {
         return _symbols[0];
     }
     
     //getter operand 2
-    public String operand2() {
+    public String secondOperand() {
         return _symbols[1];
     }
     
@@ -149,7 +149,7 @@ public class Statement implements Serializable, Comparable<Object> {
         boolean extended = false;
         int index = 0;
 
-        //if 3 tokens, the label is located at the 2nd token
+        //if 3 tokens, the label is located at the 1st token
         if (tokens.length == 3) {
             label = tokens[index++];
         } else {
@@ -161,7 +161,7 @@ public class Statement implements Serializable, Comparable<Object> {
         if(tokens.length == 0)
         	return null;
         	
-        //operation equals 3rd value
+        //operation equals 2nd value
         operation = tokens[index++];
         
         //if first character is +, we are in extended mode
@@ -229,7 +229,10 @@ public class Statement implements Serializable, Comparable<Object> {
             if(_operation.length() >= 4)
             	s+="\t";
             else
-            	s+="\t\t";
+            	if(_operation.length() == 3 && _extended)
+            		s+="\t";
+            	else
+            		s+="\t\t";
             if (_symbols != null) {
                 if (_symbols[0] != null) {
                     s += _symbols[0];

@@ -41,15 +41,15 @@ public class SICAssemble {
 	 */
 	public SICAssemble() {
 		// build the optab
-		OPTAB = TableBuilder.getOperaionTable();
+		OPTAB = TableBuilder.getOPTAB();
 
 		// build the register tab
-		REGTAB = TableBuilder.getRegisterTable();
+		REGTAB = TableBuilder.getREGTAB();
 
 		// construct an empty symmtab
 		SYMTAB = new HashMap<>();
 
-		// add a null entry to it isn't accidentally inserted later
+		// add a null entry so it isn't accidentally inserted later
 		SYMTAB.put(null, 0);
 	}
 
@@ -64,7 +64,7 @@ public class SICAssemble {
 	 */
 	public void assemble(File input, File output) throws IOException,
 			ClassNotFoundException {
-		// this is where we will store our interfile
+		// this is where we will store our java interfile
 		File interFile = new File(".assembler.tmp");
 
 		try {
@@ -77,7 +77,7 @@ public class SICAssemble {
 			// perform the second pass, save the data to object file
 			secondPass(interFile, output);
 		} finally {
-			// interFile.delete();
+			interFile.delete();
 		}
 	}
 
@@ -138,7 +138,7 @@ public class SICAssemble {
 					switch (statement.operation()) {
 					//if start, set start address here
 					case "START":
-						_startAddress = Integer.parseInt(statement.operand1());
+						_startAddress = Integer.parseInt(statement.firstOperand());
 						statement.setLocation(_locationCounter = _startAddress);
 						break;
 					//if end, ignore line
@@ -151,16 +151,16 @@ public class SICAssemble {
 					//if resw, we increase by 3 times the resw size
 					case "RESW":
 						_locationCounter += 3 * Integer.parseInt(statement
-								.operand1());
+								.firstOperand());
 						break;
 					//if resb, we increase by the byte from statement
 					case "RESB":
 						_locationCounter += Integer.parseInt(statement
-								.operand1());
+								.firstOperand());
 						break;
 					//if byte, we much pull the byte or character out
 					case "BYTE":
-						String s = statement.operand1();
+						String s = statement.firstOperand();
 
 						switch (s.charAt(0)) {
 						case 'C':
@@ -219,7 +219,7 @@ public class SICAssemble {
 					System.exit(-1);
 				}
 			}
-			
+
 			//calculate the program length
 			_programLength = _locationCounter - _startAddress;
 		}
@@ -228,6 +228,11 @@ public class SICAssemble {
 	/**
 	 * Perform the second pass.  Takes the inter file and reads back into memory,
 	 * then creates the appropriate object code files
+	 * 1.	Assemble instructions (translating operation codes and looking up
+	 * 		addresses).
+	 * 2.	Generate data values defined by BYTE, WORD, etc.
+	 * 3.	Perform processing of assembler directives not done during Pass 1.
+	 * 4.	Write the object program and the assembly listing.
 	 * @param input - interfile from pass 1
 	 * @param output - destination output file
 	 * @throws IOException - interfile not found
@@ -279,14 +284,20 @@ public class SICAssemble {
 
 				//if it is format 4 and not immediate value
 				if (statement.isExtended()
-						&& SYMTAB.containsKey(statement.operand1())) {
+						&& SYMTAB.containsKey(statement.firstOperand())) {
 					mRecords.add(new ObjectModRecord(statement
 							.location() + 1, 5));
-				}
+				}			
 				
-				//================================================
-				//System.out.println(statement + "\t\t" + objectCode);
-				//================================================
+				int stateLength = 0;
+				if(statement.firstOperand()!=null)
+					stateLength+=statement.firstOperand().length();
+				if(statement.secondOperand()!=null)
+					stateLength+=statement.secondOperand().length();
+				if(stateLength >= 4)
+					AssemblyListingWriter.write((statement + "\t\t" + objectCode));
+				else
+					AssemblyListingWriter.write((statement + "\t\t\t" + objectCode));
 				
 				//handle if we need to make a new line
 				if (	statement.location() - lastRecordAddress >= 0x1000
@@ -340,10 +351,10 @@ public class SICAssemble {
 				objCode = OPTAB.get(statement.operation()).opcode();
 
 				objCode += Integer
-						.toHexString(REGTAB.get(statement.operand1()))
+						.toHexString(REGTAB.get(statement.firstOperand()))
 						.toUpperCase();
 				objCode += Integer
-						.toHexString(REGTAB.get(statement.operand2()))
+						.toHexString(REGTAB.get(statement.secondOperand()))
 						.toUpperCase();
 
 				break;
@@ -358,11 +369,10 @@ public class SICAssemble {
 				final int e = 1;
 				
 				//get the opcode, shift bit left 4
-				int code = Integer.parseInt(OPTAB.get(statement.operation())
-						.opcode(), 16) << 4;
+				int code = Integer.parseInt(OPTAB.get(statement.operation()).opcode(), 16) << 4;
 				
 				//get the operand
-				String operand = statement.operand1();
+				String operand = statement.firstOperand();
 
 				//if the operand is null (this handles rsub, nobase, etc)
 				if (operand == null) {
@@ -389,17 +399,30 @@ public class SICAssemble {
 						//turn on n and i bit
 						code |= n | i;
 						//if indexed, turn on x bit
-						if (statement.operand2() != null) {
+						if (statement.secondOperand() != null) {
 							code |= x;
 						}
 					}
 					
 					//define displacement address to 0
-					int disp;
+					int disp = 0;
 
 					//if operand not in symtab, disp becomes the operand value
 					if (SYMTAB.get(operand) == null) {
-						disp = Integer.parseInt(operand);
+						try {
+							disp = Integer.parseInt(operand);
+						} catch (Exception e1) {
+							try{
+								throw new Exception("ERROR: The token `" + operand + "` does not have an entry in SYMTAB");
+							}catch(Exception e2){
+								e2.printStackTrace();
+								AssemblyListingWriter.write("ERROR: The token `" + operand + "` does not have an entry in SYMTAB");
+								AssemblyListingWriter.write("Dumping SYMTAB...");
+								for(Map.Entry<String, Integer> entry : SYMTAB.entrySet())
+									AssemblyListingWriter.write(entry.getKey() + " -> " + Integer.toHexString((entry.getValue())));
+								System.exit(-1);
+							}
+						}
 					//if the symtab does contain
 					} else {
 						//get the target address
@@ -444,7 +467,7 @@ public class SICAssemble {
 		//else if statement is byte
 		} else if (statement.compareTo("BYTE") == 0) {
 			//get the operand
-			String s = statement.operand1();
+			String s = statement.firstOperand();
 			
 			//get the type
 			char type = s.charAt(0);
@@ -467,11 +490,11 @@ public class SICAssemble {
 		//if word
 		} else if (statement.compareTo("WORD") == 0) {
 			//write the word to object code
-			objCode = String.format("%06X", statement.operand1());
+			objCode = String.format("%06X", statement.firstOperand());
 		//if base
 		} else if (statement.compareTo("BASE") == 0) {
 			//set the base address
-			_baseAddress = SYMTAB.get(statement.operand1());
+			_baseAddress = SYMTAB.get(statement.firstOperand());
 		//if nobase
 		} else if (statement.compareTo("NOBASE") == 0) {
 			//unset base address
@@ -486,9 +509,20 @@ public class SICAssemble {
 	 * @param args - program arguments
 	 */
 	public static void main(String[] args) {
-		String inputFile = "SRCFILE.txt";
+		
+		if(		args.length < 1 
+				|| args[0].contains("--help") 
+				|| args[0].contains("-h"))
+		{
+			System.out.println("Usage:");
+			System.out.println("java -jar sic_assemble.jar [path-to-src-file]");
+			System.exit(-1);
+		}
+		
+		String inputFile = args[0];
 		String outputFile = "object_code.txt";
 		String interFile = "inter_file.txt";
+		String assemblyListingFile = "assembly_listing.txt";
 		
 		try 
 		{
@@ -499,8 +533,22 @@ public class SICAssemble {
 			InterFileWriter.filePath = interFile;
 			InterFileWriter.init();
 			
+			//initialize our assemblylisting file writer
+			AssemblyListingWriter.filePath = assemblyListingFile;
+			AssemblyListingWriter.init();
+			
+			System.out.println("Starting assembly.");
+			System.out.println("Target source file: " + inputFile);
+			System.out.println("...");
 			//go
 			assembler.assemble(new File(inputFile), new File(outputFile));
+			
+			System.out.println("Assembly complete.");
+			System.out.println("...");
+			System.out.println("Files saved to local directory.");
+			System.out.println("Object-code file name: " + outputFile);
+			System.out.println("Inter-file file name:  " + interFile);
+			System.out.println("Assembly-listing-file file name: " + assemblyListingFile);
 		}
 		//handle possible exceptions
 		catch (IOException | ClassNotFoundException e) 
